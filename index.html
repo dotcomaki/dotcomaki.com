@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akif</title>
+    <title>Akif M.</title>
     <style>
         body {
             background-color: black;
@@ -52,7 +52,6 @@
 
     <p><span class="scramble">That's pretty much it! Thank you for visiting my digital abode :D</span></p>
   <script>
-    // Continuous word-level scramble and sequential line reveal
     (function(){
       const CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -68,7 +67,6 @@
         return { chunk: out, newIndex: i };
       }
 
-      // Tokenize HTML into tags/entities/words/spaces
       function tokenizeHTML(html) {
         const tokens = [];
         for (let i = 0; i < html.length; i++) {
@@ -81,13 +79,11 @@
             tokens.push({ type: 'entity', text: taken.chunk });
             i = taken.newIndex;
           } else if (/\s/.test(html[i])) {
-            // collect run of whitespace
             let start = i;
             while (i < html.length && /\s/.test(html[i])) i++;
             tokens.push({ type: 'space', text: html.slice(start, i) });
             i--;
           } else {
-            // collect run of non-space, non-tag (a word)
             let start = i;
             while (i < html.length && html[i] !== '<' && html[i] !== '&' && !/\s/.test(html[i])) i++;
             tokens.push({ type: 'word', text: html.slice(start, i) });
@@ -110,7 +106,6 @@
         return out;
       }
 
-      // Build scrambled HTML from tokens, revealing words up to revealAll boolean
       function buildScrambledHTML(tokens) {
         return tokens.map(t => {
           if (t.type === 'tag' || t.type === 'entity' || t.type === 'space') return t.text;
@@ -118,26 +113,21 @@
         }).join('');
       }
 
-      // Build HTML where we fully reveal (use original) for revealed flag
       function buildMixedHTML(tokens, reveal) {
-        // reveal: boolean - if true show original words, else scramble
         return tokens.map(t => {
           if (t.type === 'tag' || t.type === 'entity' || t.type === 'space') return t.text;
           return reveal ? t.text : scrambleWord(t.text);
         }).join('');
       }
 
-      // main
       const elems = Array.from(document.querySelectorAll('.scramble'));
-      let perLineMs = 700; // default stagger between lines (ms)
-      // attempt to read existing value if user previously set perLineMs in global scope
+      let perLineMs = 700;
       try { if (typeof window.scramblePerLineMs === 'number') perLineMs = window.scramblePerLineMs; } catch(e){}
 
-      const scrambleIntervalMs = 60; // how often unrevealed words reshuffle
+      const scrambleIntervalMs = 60;
 
       const items = elems.map(el => ({ el, original: el.innerHTML, tokens: tokenizeHTML(el.innerHTML), revealed: false }));
 
-      // Start by continuously scrambling all unrevealed elements
       const intervalId = setInterval(() => {
         items.forEach(item => {
           if (!item.revealed) {
@@ -146,12 +136,10 @@
         });
       }, scrambleIntervalMs);
 
-      // Reveal elements sequentially with perLineMs delay; when revealed stop scrambling them
       items.forEach((item, idx) => {
         setTimeout(() => {
           item.revealed = true;
           item.el.innerHTML = item.original;
-          // If last item, stop the continuous interval
           if (idx === items.length - 1) clearInterval(intervalId);
         }, idx * perLineMs);
       });
